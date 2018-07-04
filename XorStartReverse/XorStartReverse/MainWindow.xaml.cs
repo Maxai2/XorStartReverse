@@ -333,7 +333,7 @@ namespace XorStartReverse
                                 ProgressValue += 1;
                             });
 
-                            SpeedTool = $"{stopwatch.ElapsedTicks / 1000} Kb/s";
+                            SpeedTool = $"{stopwatch.ElapsedTicks / 60} Kb/s";
                         }
 
                         Thread.Sleep(5);
