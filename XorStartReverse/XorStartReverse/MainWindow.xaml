@@ -4,9 +4,52 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XorStartReverse"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        mc:Ignorable="d" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        Title="MainWindow" Height="200" Width="500">
+	<Grid Margin="10">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+
+		<Grid Grid.Row="0" IsEnabled="{Binding FilePathIsEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="0.2*"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+
+			<Button Grid.Column="0" Content="Файл" Margin="5" Command="{Binding FileSelect}"/>
+			<TextBox Grid.Column="1" Margin="5" Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		</Grid>
+
+		<Grid Grid.Row="1" Margin="5" IsEnabled="{Binding KeyEncDecIsEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="0.6*"/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+
+			<Label Grid.Column="0" Content="Пароль" FontSize="14" Width="Auto"/>
+
+			<TextBox Grid.Column="1" Margin="5" Text="{Binding EncryptKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="Minimum length of key is 6!"/>
+			<RadioButton VerticalAlignment="Center" Grid.Column="2" HorizontalAlignment="Center" Content="Зашифровать" FontSize="14" GroupName="IsCrypted" IsChecked="{Binding IsEncrypt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+			<RadioButton VerticalAlignment="Center" Grid.Column="3" HorizontalAlignment="Center" Content="Расшифровать" FontSize="14" GroupName="IsCrypted" VerticalContentAlignment="Center"/>
+		</Grid>
+
+		<ProgressBar	Grid.Row="2" Margin="0 5" Value="{Binding ProgressValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding ProgBarMaxVal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0" ToolTip="{Binding SpeedTool, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+		<StackPanel Grid.Row="3" HorizontalAlignment="Left" Orientation="Horizontal">
+			<TextBox Width="Auto" Text="{Binding BlockSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10 10 0 10" HorizontalContentAlignment="Center" MaxLength="35" IsEnabled="{Binding ChunkSizeEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+			<Label Content="байт" VerticalAlignment="Center" FontSize="12"/>
+		</StackPanel>
+
+		<StackPanel Margin="5" Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+			<Button Content="Пуск" Width="70" Margin="5 0" Command="{Binding StartCom}"/>
+			<Button Content="Отмена" Width="70" Margin="5 0" Command="{Binding CancelCom}"/>
+		</StackPanel>
+
+	</Grid>
 </Window>

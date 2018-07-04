@@ -8,16 +8,26 @@ namespace XorStartReverse
         private Action<object> excecute;
         private Predicate<object> canExcecute;
 
-        public event EventHandler CanExecuteChanged;
+        public RelayCommand(Action<object> excecute, Predicate<object> canExcecute = null)
+        {
+            this.excecute = excecute ?? throw new ArgumentNullException(nameof(excecute));
+            this.canExcecute = canExcecute;
+        }
+
+        public event EventHandler CanExecuteChanged
+        {
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
 
         public bool CanExecute(object parameter)
         {
-            throw new NotImplementedException();
+            return this.canExcecute?.Invoke(parameter) ?? true;
         }
 
         public void Execute(object parameter)
         {
-            throw new NotImplementedException();
+            this.excecute.Invoke(parameter);
         }
     }
 }
