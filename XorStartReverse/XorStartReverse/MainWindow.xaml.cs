@@ -199,7 +199,7 @@ namespace XorStartReverse
 
         string fileText;
 
-        Thread task;
+        Task task;
 
         private ICommand startCom;
         public ICommand StartCom
@@ -217,9 +217,9 @@ namespace XorStartReverse
 
                             this.interrupt = false;
 
-                            task = new Thread(() =>
+                            task = new Task(() =>
                             {
-                                EcryptDecryptFile(IsEncrypt);
+                                EcryptDecryptFile();
                             });
 
                             task.Start();
@@ -232,7 +232,7 @@ namespace XorStartReverse
                                 return false;
                             }
 
-                            if (task != null && task.IsAlive)
+                            if (task != null && !task.IsCompleted)
                             {
                                 return false;
                             }
@@ -279,7 +279,7 @@ namespace XorStartReverse
                             if (task == null)
                                 return false;
 
-                            if (task.IsAlive)
+                            if (!task.IsCompleted)
                                 return true;
                             else
                                 return false;
@@ -293,8 +293,9 @@ namespace XorStartReverse
         //--------------------------------------------------------------------
 
         Stopwatch stopwatch = new Stopwatch();
+        int point = 0;
 
-        void EcryptDecryptFile(bool mode)
+        void EcryptDecryptFile()
         {
             var att = File.GetAttributes(FilePath);
 
@@ -316,6 +317,18 @@ namespace XorStartReverse
                     {
                         if (interrupt)
                         {
+                            for (int j = point; j >= 0; --j)
+                            {
+                                array[j] = (byte)(array[j] ^ bytes[j % bytes.Length]);
+
+                                Dispatcher.Invoke(() =>
+                                {
+                                    ProgressValue -= 1;
+                                });
+
+                                Thread.Sleep(5);
+                            }
+
                             FilePathIsEnable = true;
                             KeyEncDecIsEnable = true;
                             ChunkSizeEnable = true;
@@ -333,10 +346,11 @@ namespace XorStartReverse
                                 ProgressValue += 1;
                             });
 
-                            SpeedTool = $"{stopwatch.ElapsedTicks / 60} Kb/s";
+                            point++;
+
+                            SpeedTool = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
                         }
 
-                        Thread.Sleep(5);
                     }
 
                     stopwatch.Stop();
@@ -406,6 +420,7 @@ namespace XorStartReverse
             FilePath = "";
             BlockSize = "4096";
             SpeedTool = "0 Kb/s";
+            point = 0;
 
             Dispatcher.Invoke(() =>
             {
