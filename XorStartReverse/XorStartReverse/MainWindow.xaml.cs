@@ -122,7 +122,7 @@ namespace XorStartReverse
         private bool chunkSizeEnable = true;
         public bool ChunkSizeEnable
         {
-            get => chunkSizeEnable; 
+            get => chunkSizeEnable;
             set
             {
                 chunkSizeEnable = value;
@@ -267,12 +267,13 @@ namespace XorStartReverse
                                 if (result == MessageBoxResult.Yes)
                                 {
                                     // task.Interrupt();
+
                                     this.interrupt = true;
                                     this.task = null;
                                 }
                             }
-                            DefaultState();
 
+                            DefaultState();
                         },
                         (param) =>
                         {
@@ -337,20 +338,22 @@ namespace XorStartReverse
 
                             return;
                         }
-                        lock (pause)
+                        else
                         {
-                            array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
-
-                            Dispatcher.Invoke(() =>
+                            lock (pause)
                             {
-                                ProgressValue += 1;
-                            });
+                                array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
 
-                            point++;
+                                Dispatcher.Invoke(() =>
+                                {
+                                    ProgressValue += 1;
+                                });
 
-                            SpeedTool = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
+                                point++;
+
+                                SpeedTool = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
+                            }
                         }
-
                     }
 
                     stopwatch.Stop();
