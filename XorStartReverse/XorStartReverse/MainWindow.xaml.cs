@@ -27,7 +27,6 @@ namespace XorStartReverse
         private bool interrupt = false;
         private bool finish = false;
 
-
         private bool isEncrypt = true;
         public bool IsEncrypt
         {
@@ -80,7 +79,7 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
-        private double progBarMaxVal = 100;
+        private double progBarMaxVal;
         public double ProgBarMaxVal
         {
             get => progBarMaxVal;
@@ -115,7 +114,7 @@ namespace XorStartReverse
                 keyEncDecIsEnable = value;
                 OnPropertyChanged();
             }
-        }
+        }  
 
         //--------------------------------------------------------------------
 
@@ -223,7 +222,6 @@ namespace XorStartReverse
                             });
 
                             task.Start();
-
                         },
                         (param) =>
                         {
