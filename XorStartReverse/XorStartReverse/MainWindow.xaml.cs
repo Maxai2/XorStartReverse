@@ -144,13 +144,13 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
-        private string speedTool;
-        public string SpeedTool
+        private string speedToolTip;
+        public string SpeedToolTip
         {
-            get => speedTool;
+            get => speedToolTip;
             set
             {
-                speedTool = value;
+                speedToolTip = value;
                 OnPropertyChanged();
             }
         }
@@ -349,7 +349,7 @@ namespace XorStartReverse
 
                                 point++;
 
-                                SpeedTool = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
+                                SpeedToolTip = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
                             }
                         }
                     }
@@ -420,7 +420,7 @@ namespace XorStartReverse
             EncryptKey = "";
             FilePath = "";
             BlockSize = "4096";
-            SpeedTool = "0 Kb/s";
+            SpeedToolTip = "0 Kb/s";
             point = 0;
 
             Dispatcher.Invoke(() =>
