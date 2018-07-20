@@ -79,7 +79,7 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
-        private double progBarMaxVal;
+        private double progBarMaxVal = 100;
         public double ProgBarMaxVal
         {
             get => progBarMaxVal;
@@ -159,6 +159,9 @@ namespace XorStartReverse
 
         OpenFileDialog OpenFile;
 
+        byte[] bytes;
+        byte[] array;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -197,7 +200,6 @@ namespace XorStartReverse
         //--------------------------------------------------------------------
 
         string fileText;
-
         Task task;
 
         private ICommand startCom;
@@ -264,8 +266,6 @@ namespace XorStartReverse
 
                                 if (result == MessageBoxResult.Yes)
                                 {
-                                    // task.Interrupt();
-
                                     this.interrupt = true;
                                     this.task = null;
                                 }
@@ -302,9 +302,8 @@ namespace XorStartReverse
             {
                 using (FileStream fstream = File.OpenRead(FilePath))
                 {
-                    byte[] bytes = Encoding.UTF8.GetBytes(EncryptKey);
-
-                    byte[] array = new byte[fstream.Length];
+                    bytes = Encoding.UTF8.GetBytes(EncryptKey);
+                    array = new byte[fstream.Length];
 
                     fstream.Read(array, 0, array.Length);
 
@@ -322,10 +321,8 @@ namespace XorStartReverse
 
                                 Dispatcher.Invoke(() =>
                                 {
-                                    ProgressValue -= 1;
+                                    ProgressValue -= 10;
                                 });
-
-                                Thread.Sleep(5);
                             }
 
                             FilePathIsEnable = true;
@@ -336,22 +333,21 @@ namespace XorStartReverse
 
                             return;
                         }
-                        else
+                        lock (pause)
                         {
-                            lock (pause)
+                            array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
+
+                            Dispatcher.Invoke(() =>
                             {
-                                array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
+                                ProgressValue += 10;
+                            });
 
-                                Dispatcher.Invoke(() =>
-                                {
-                                    ProgressValue += 1;
-                                });
+                            point++;
 
-                                point++;
-
-                                SpeedToolTip = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
-                            }
+                            SpeedToolTip = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
                         }
+
+                        Thread.Sleep(2);
                     }
 
                     stopwatch.Stop();

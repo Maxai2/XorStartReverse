@@ -39,7 +39,7 @@
 			<RadioButton VerticalAlignment="Center" Grid.Column="3" HorizontalAlignment="Center" Content="Расшифровать" FontSize="14" GroupName="IsCrypted" VerticalContentAlignment="Center"/>
 		</Grid>
 
-		<ProgressBar	Grid.Row="2" Margin="0 5" Value="{Binding ProgressValue}" Maximum="{Binding ProgBarMaxVal}" Minimum="0" ToolTip="{Binding SpeedTool}"/>
+		<ProgressBar	Grid.Row="2" Margin="0 5" Value="{Binding ProgressValue}" Maximum="{Binding ProgBarMaxVal}" Minimum="0" ToolTip="{Binding SpeedTool}" />
 
 		<StackPanel Grid.Row="3" HorizontalAlignment="Left" Orientation="Horizontal">
 			<TextBox Width="Auto" Text="{Binding BlockSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10 10 0 10" HorizontalContentAlignment="Center" MaxLength="35" IsEnabled="{Binding ChunkSizeEnable}"/>
