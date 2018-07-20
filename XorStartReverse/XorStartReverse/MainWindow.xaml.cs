@@ -216,7 +216,7 @@ namespace XorStartReverse
                             KeyEncDecIsEnable = false;
                             ChunkSizeEnable = false;
 
-                            this.interrupt = false;
+                            interrupt = false;
 
                             task = new Task(() =>
                             {
@@ -266,8 +266,8 @@ namespace XorStartReverse
 
                                 if (result == MessageBoxResult.Yes)
                                 {
-                                    this.interrupt = true;
-                                    this.task = null;
+                                    interrupt = true;
+                                    //this.task = null;
                                 }
                             }
 
@@ -313,26 +313,6 @@ namespace XorStartReverse
 
                     for (int i = 0; i < array.Length; i++)
                     {
-                        if (interrupt)
-                        {
-                            for (int j = point; j >= 0; --j)
-                            {
-                                array[j] = (byte)(array[j] ^ bytes[j % bytes.Length]);
-
-                                Dispatcher.Invoke(() =>
-                                {
-                                    ProgressValue -= 10;
-                                });
-                            }
-
-                            FilePathIsEnable = true;
-                            KeyEncDecIsEnable = true;
-                            ChunkSizeEnable = true;
-
-                            DefaultState();
-
-                            return;
-                        }
                         lock (pause)
                         {
                             array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
@@ -345,6 +325,27 @@ namespace XorStartReverse
                             point++;
 
                             SpeedToolTip = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
+
+                            if (interrupt)
+                            {
+                                for (int j = point; j >= 0; --j)
+                                {
+                                    array[j] = (byte)(array[j] ^ bytes[j % bytes.Length]);
+
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        ProgressValue -= 10;
+                                    });
+                                }
+
+                                FilePathIsEnable = true;
+                                KeyEncDecIsEnable = true;
+                                ChunkSizeEnable = true;
+
+                                DefaultState();
+
+                                return;
+                            }
                         }
 
                         Thread.Sleep(2);
