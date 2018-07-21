@@ -114,7 +114,7 @@ namespace XorStartReverse
                 keyEncDecIsEnable = value;
                 OnPropertyChanged();
             }
-        }  
+        }
 
         //--------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
-        private string speedToolTip;
+        private string speedToolTip = "";
         public string SpeedToolTip
         {
             get => speedToolTip;
@@ -270,8 +270,6 @@ namespace XorStartReverse
                                     //this.task = null;
                                 }
                             }
-
-                            DefaultState();
                         },
                         (param) =>
                         {
@@ -311,44 +309,55 @@ namespace XorStartReverse
 
                     stopwatch.Start();
 
+                    var startTime = stopwatch.ElapsedMilliseconds;
+
                     for (int i = 0; i < array.Length; i++)
                     {
+                        array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
+
                         lock (pause)
                         {
-                            array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
-
                             Dispatcher.Invoke(() =>
                             {
                                 ProgressValue += 10;
                             });
+                        }
 
-                            point++;
+                        point++;
 
-                            SpeedToolTip = $"{stopwatch.ElapsedMilliseconds / 60} Kb/s";
+                        if (startTime / 1000 == 0)
+                        {
+                            SpeedToolTip = $"{point / 1000} Kb/s";
+                        }
 
-                            if (interrupt)
+
+                        if (interrupt)
+                        {
+                            for (int j = point; j >= 0; j--)
                             {
-                                for (int j = point; j >= 0; --j)
-                                {
-                                    array[j] = (byte)(array[j] ^ bytes[j % bytes.Length]);
+                                array[j] = (byte)(array[j] ^ bytes[j % bytes.Length]);
 
+                                lock (pause)
+                                {
                                     Dispatcher.Invoke(() =>
                                     {
                                         ProgressValue -= 10;
                                     });
                                 }
 
-                                FilePathIsEnable = true;
-                                KeyEncDecIsEnable = true;
-                                ChunkSizeEnable = true;
-
-                                DefaultState();
-
-                                return;
+                                Thread.Sleep(7);
                             }
+
+                            FilePathIsEnable = true;
+                            KeyEncDecIsEnable = true;
+                            ChunkSizeEnable = true;
+
+                            DefaultState();
+
+                            return;
                         }
 
-                        Thread.Sleep(2);
+                        Thread.Sleep(7);
                     }
 
                     stopwatch.Stop();
