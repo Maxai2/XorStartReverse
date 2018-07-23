@@ -25,7 +25,6 @@ namespace XorStartReverse
     {
         private object pause = new object();
         private bool interrupt = false;
-        private bool finish = false;
 
         private bool isEncrypt = true;
         public bool IsEncrypt
@@ -144,7 +143,7 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
-        private string speedToolTip = "";
+        private string speedToolTip = "0 Kb/s";
         public string SpeedToolTip
         {
             get => speedToolTip;
@@ -162,11 +161,15 @@ namespace XorStartReverse
         byte[] bytes;
         byte[] array;
 
+        Timer stopwatch;
+
         public MainWindow()
         {
             InitializeComponent();
 
             this.DataContext = this;
+
+            // stopwatch = new Timer()
 
             OpenFile = new OpenFileDialog();
             OpenFile.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -176,6 +179,9 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
+
+
+        //--------------------------------------------------------------------
         private ICommand fileSelect;
         public ICommand FileSelect
         {
@@ -289,8 +295,9 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
-        Stopwatch stopwatch = new Stopwatch();
         int point = 0;
+
+        Queue<byte[]> chunkList = new Queue<byte[]>();
 
         void EcryptDecryptFile()
         {
@@ -301,70 +308,79 @@ namespace XorStartReverse
                 using (FileStream fstream = File.OpenRead(FilePath))
                 {
                     bytes = Encoding.UTF8.GetBytes(EncryptKey);
-                    array = new byte[fstream.Length];
 
-                    fstream.Read(array, 0, array.Length);
-
-                    ProgBarMaxVal = array.Length;
-
-                    stopwatch.Start();
-
-                    var startTime = stopwatch.ElapsedMilliseconds;
-
-                    for (int i = 0; i < array.Length; i++)
+                    var parts = (int)Math.Ceiling(fstream.Length * 1.0 / Convert.ToDouble(BlockSize));
+                    var toRead = (int)Math.Min(fstream.Length - fstream.Position, Convert.ToDouble(BlockSize));
+                    while (toRead > 0)
                     {
-                        array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
-
-                        lock (pause)
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                ProgressValue += 10;
-                            });
-                        }
-
-                        point++;
-
-                        if (startTime / 1000 == 0)
-                        {
-                            SpeedToolTip = $"{point / 1000} Kb/s";
-                        }
-
-
-                        if (interrupt)
-                        {
-                            for (int j = point; j >= 0; j--)
-                            {
-                                array[j] = (byte)(array[j] ^ bytes[j % bytes.Length]);
-
-                                lock (pause)
-                                {
-                                    Dispatcher.Invoke(() =>
-                                    {
-                                        ProgressValue -= 10;
-                                    });
-                                }
-
-                                Thread.Sleep(7);
-                            }
-
-                            FilePathIsEnable = true;
-                            KeyEncDecIsEnable = true;
-                            ChunkSizeEnable = true;
-
-                            DefaultState();
-
-                            return;
-                        }
-
-                        Thread.Sleep(7);
+                        var chunk = new byte[toRead];
+                        fstream.Read(chunk, 0, toRead);
+                        chunkList.Enqueue(chunk);
+                        toRead = (int)Math.Min(fstream.Length - fstream.Position, toRead);
                     }
 
-                    stopwatch.Stop();
+                    foreach (var item in chunkList)
+                    {
+                        array = new byte[item.Length];
 
-                    fileText = Encoding.Default.GetString(array);
+                        fstream.Read(array, 0, array.Length);
 
-                    fstream.Seek(0, SeekOrigin.Begin);
+                        ProgBarMaxVal = array.Length;
+
+                        for (int i = 0; i < array.Length; i++)
+                        {
+                            array[i] = (byte)(array[i] ^ bytes[i % bytes.Length]);
+
+                            lock (pause)
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    ProgressValue += 10;
+                                });
+                            }
+
+                            point++;
+
+                            //if (startTime / 1000 == 0)
+                            //{
+                            //    SpeedToolTip = $"{point / 1000} Kb/s";
+                            //}
+
+                            if (interrupt)
+                            {
+                                for (int j = point; j >= 0; j--)
+                                {
+                                    array[j] = (byte)(array[j] ^ bytes[j % bytes.Length]);
+
+                                    lock (pause)
+                                    {
+                                        Dispatcher.Invoke(() =>
+                                        {
+                                            ProgressValue -= 10;
+                                        });
+                                    }
+
+                                    Thread.Sleep(7);
+                                }
+
+                                FilePathIsEnable = true;
+                                KeyEncDecIsEnable = true;
+                                ChunkSizeEnable = true;
+
+                                DefaultState();
+
+                                return;
+                            }
+
+                            Thread.Sleep(7);
+                        }
+
+                        //stopwatch.Stop();
+
+                        fileText = Encoding.Default.GetString(array);
+
+                        fstream.Seek(0, SeekOrigin.Begin);
+                    }
                 }
 
                 // File.WriteAllText(FilePath, String.Empty);
@@ -375,6 +391,7 @@ namespace XorStartReverse
 
                     fstream.Write(array, 0, array.Length);
                 }
+
 
                 if (IsEncrypt)
                 {
