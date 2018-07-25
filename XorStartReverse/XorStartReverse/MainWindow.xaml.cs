@@ -158,9 +158,6 @@ namespace XorStartReverse
 
         OpenFileDialog OpenFile;
 
-        byte[] bytes;
-        byte[] array;
-
         Timer stopwatch;
 
         public MainWindow()
@@ -302,13 +299,13 @@ namespace XorStartReverse
         void EcryptDecryptFile()
         {
             var att = File.GetAttributes(FilePath);
-
+            
             if ((att == FileAttributes.Archive && IsEncrypt == true) || (att == FileAttributes.Normal && IsEncrypt == false))
             {
                 using (FileStream fstream = File.OpenRead(FilePath))
                 {
-                    bytes = Encoding.UTF8.GetBytes(EncryptKey);
-
+                    var bytes = Encoding.UTF8.GetBytes(EncryptKey);
+                    var fileLength = fstream.Length;
                     var parts = (int)Math.Ceiling(fstream.Length * 1.0 / Convert.ToDouble(BlockSize));
                     var toRead = (int)Math.Min(fstream.Length - fstream.Position, Convert.ToDouble(BlockSize));
                     while (toRead > 0)
@@ -319,13 +316,13 @@ namespace XorStartReverse
                         toRead = (int)Math.Min(fstream.Length - fstream.Position, toRead);
                     }
 
+                    ProgBarMaxVal = fileLength;
+
                     foreach (var item in chunkList)
                     {
-                        array = new byte[item.Length];
+                        var array = new byte[item.Length];
+                        
 
-                        fstream.Read(array, 0, array.Length);
-
-                        ProgBarMaxVal = array.Length;
 
                         for (int i = 0; i < array.Length; i++)
                         {
@@ -335,11 +332,12 @@ namespace XorStartReverse
                             {
                                 Dispatcher.Invoke(() =>
                                 {
-                                    ProgressValue += 10;
+                                    ProgressValue += 1000;
                                 });
                             }
 
                             point++;
+                            Thread.Sleep(7);
 
                             //if (startTime / 1000 == 0)
                             //{
@@ -356,7 +354,7 @@ namespace XorStartReverse
                                     {
                                         Dispatcher.Invoke(() =>
                                         {
-                                            ProgressValue -= 10;
+                                            ProgressValue -= 1000;
                                         });
                                     }
 
@@ -372,12 +370,11 @@ namespace XorStartReverse
                                 return;
                             }
 
-                            Thread.Sleep(7);
                         }
 
                         //stopwatch.Stop();
 
-                        fileText = Encoding.Default.GetString(array);
+                        fileText += Encoding.Default.GetString(array);
 
                         fstream.Seek(0, SeekOrigin.Begin);
                     }
