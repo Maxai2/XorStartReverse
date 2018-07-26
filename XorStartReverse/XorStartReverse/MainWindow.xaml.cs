@@ -2,22 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Timers;
 
 namespace XorStartReverse
 {
@@ -158,7 +150,7 @@ namespace XorStartReverse
 
         OpenFileDialog OpenFile;
 
-        Timer timer;
+        System.Timers.Timer timer;
 
         public MainWindow()
         {
@@ -166,9 +158,11 @@ namespace XorStartReverse
 
             this.DataContext = this;
 
-            int num = 0;
-
-            timer = new Timer(, num, 0, 1000);
+            timer = new System.Timers.Timer();
+            timer.Interval = 1000;
+            timer.Elapsed += OnTimedEvent;
+            timer.AutoReset = true;
+            timer.Enabled = true;
 
             OpenFile = new OpenFileDialog();
             OpenFile.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -178,7 +172,10 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
+        private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        {
 
+        }
 
         //--------------------------------------------------------------------
         private ICommand fileSelect;
@@ -332,12 +329,17 @@ namespace XorStartReverse
                             {
                                 Dispatcher.Invoke(() =>
                                 {
-                                    ProgressValue += 1;
+                                    ProgressValue += 1000;
                                 });
                             }
 
                             point++;
                             Thread.Sleep(7);
+
+                            //if (startTime / 1000 == 0)
+                            //{
+                            //    SpeedToolTip = $"{point / 1000} Kb/s";
+                            //}
 
                             if (interrupt)
                             {
@@ -349,7 +351,7 @@ namespace XorStartReverse
                                     {
                                         Dispatcher.Invoke(() =>
                                         {
-                                            ProgressValue -= 1;
+                                            ProgressValue -= 1000;
                                         });
                                     }
 
@@ -370,9 +372,9 @@ namespace XorStartReverse
                         //stopwatch.Stop();
 
                         fileText += Encoding.Default.GetString(array);
-                    }
 
-                    fstream.Seek(0, SeekOrigin.Begin);
+                        fstream.Seek(0, SeekOrigin.Begin);
+                    }
                 }
 
                 // File.WriteAllText(FilePath, String.Empty);
