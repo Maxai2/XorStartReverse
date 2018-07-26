@@ -158,7 +158,7 @@ namespace XorStartReverse
 
         OpenFileDialog OpenFile;
 
-        Timer stopwatch;
+        Timer timer;
 
         public MainWindow()
         {
@@ -166,7 +166,9 @@ namespace XorStartReverse
 
             this.DataContext = this;
 
-            // stopwatch = new Timer()
+            int num = 0;
+
+            timer = new Timer(, num, 0, 1000);
 
             OpenFile = new OpenFileDialog();
             OpenFile.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -321,8 +323,6 @@ namespace XorStartReverse
                     foreach (var item in chunkList)
                     {
                         var array = new byte[item.Length];
-                        
-
 
                         for (int i = 0; i < array.Length; i++)
                         {
@@ -332,17 +332,12 @@ namespace XorStartReverse
                             {
                                 Dispatcher.Invoke(() =>
                                 {
-                                    ProgressValue += 1000;
+                                    ProgressValue += 1;
                                 });
                             }
 
                             point++;
                             Thread.Sleep(7);
-
-                            //if (startTime / 1000 == 0)
-                            //{
-                            //    SpeedToolTip = $"{point / 1000} Kb/s";
-                            //}
 
                             if (interrupt)
                             {
@@ -354,7 +349,7 @@ namespace XorStartReverse
                                     {
                                         Dispatcher.Invoke(() =>
                                         {
-                                            ProgressValue -= 1000;
+                                            ProgressValue -= 1;
                                         });
                                     }
 
@@ -375,9 +370,9 @@ namespace XorStartReverse
                         //stopwatch.Stop();
 
                         fileText += Encoding.Default.GetString(array);
-
-                        fstream.Seek(0, SeekOrigin.Begin);
                     }
+
+                    fstream.Seek(0, SeekOrigin.Begin);
                 }
 
                 // File.WriteAllText(FilePath, String.Empty);
