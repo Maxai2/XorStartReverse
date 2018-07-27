@@ -176,7 +176,7 @@ namespace XorStartReverse
 
         private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
         {
-            speed = point / 1000.0;
+            speed = point / 1024.0;
 
             SpeedToolTip = $"{speed} Kb/s";
         }
