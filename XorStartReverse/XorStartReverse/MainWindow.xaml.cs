@@ -159,7 +159,7 @@ namespace XorStartReverse
             this.DataContext = this;
 
             timer = new System.Timers.Timer();
-            timer.Interval = 1000;
+            timer.Interval = 10000;
             timer.Elapsed += OnTimedEvent;
             timer.AutoReset = true;
             timer.Enabled = true;
@@ -172,9 +172,13 @@ namespace XorStartReverse
 
         //--------------------------------------------------------------------
 
+        double speed = 0;
+
         private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
         {
+            speed = point / 1000.0;
 
+            SpeedToolTip = $"{speed} Kb/s";
         }
 
         //--------------------------------------------------------------------
@@ -298,7 +302,7 @@ namespace XorStartReverse
         void EcryptDecryptFile()
         {
             var att = File.GetAttributes(FilePath);
-            
+
             if ((att == FileAttributes.Archive && IsEncrypt == true) || (att == FileAttributes.Normal && IsEncrypt == false))
             {
                 using (FileStream fstream = File.OpenRead(FilePath))
@@ -329,17 +333,12 @@ namespace XorStartReverse
                             {
                                 Dispatcher.Invoke(() =>
                                 {
-                                    ProgressValue += 1000;
+                                    ProgressValue += 1;
                                 });
                             }
 
                             point++;
                             Thread.Sleep(7);
-
-                            //if (startTime / 1000 == 0)
-                            //{
-                            //    SpeedToolTip = $"{point / 1000} Kb/s";
-                            //}
 
                             if (interrupt)
                             {
@@ -351,7 +350,7 @@ namespace XorStartReverse
                                     {
                                         Dispatcher.Invoke(() =>
                                         {
-                                            ProgressValue -= 1000;
+                                            ProgressValue -= 1;
                                         });
                                     }
 
@@ -367,17 +366,12 @@ namespace XorStartReverse
                                 return;
                             }
 
+                            fileText += Encoding.Default.GetString(array);
                         }
-
-                        //stopwatch.Stop();
-
-                        fileText += Encoding.Default.GetString(array);
-
-                        fstream.Seek(0, SeekOrigin.Begin);
                     }
-                }
 
-                // File.WriteAllText(FilePath, String.Empty);
+                    fstream.Seek(0, SeekOrigin.Begin);
+                }
 
                 using (FileStream fstream = new FileStream(FilePath, FileMode.OpenOrCreate))
                 {
@@ -439,6 +433,8 @@ namespace XorStartReverse
             BlockSize = "4096";
             SpeedToolTip = "0 Kb/s";
             point = 0;
+
+            timer.Stop();
 
             Dispatcher.Invoke(() =>
             {
