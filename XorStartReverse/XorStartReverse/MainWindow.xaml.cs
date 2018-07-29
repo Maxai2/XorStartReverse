@@ -159,7 +159,7 @@ namespace XorStartReverse
             this.DataContext = this;
 
             timer = new System.Timers.Timer();
-            timer.Interval = 10000;
+            timer.Interval = 1000;
             timer.Elapsed += OnTimedEvent;
             timer.AutoReset = true;
             timer.Enabled = true;
@@ -176,9 +176,11 @@ namespace XorStartReverse
 
         private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
         {
-            speed = point / 1024.0;
+            var value = (float)((1 / speed) * 1024);
 
-            SpeedToolTip = $"{speed} Kb/s";
+            SpeedToolTip = $"{value} Kb/s";
+
+            speed = 0;
         }
 
         //--------------------------------------------------------------------
@@ -338,6 +340,7 @@ namespace XorStartReverse
                             }
 
                             point++;
+                            speed++;
                             Thread.Sleep(7);
 
                             if (interrupt)
